@@ -339,7 +339,9 @@ def default_embeddings() -> Embeddings:
     else:
         from langchain_community.embeddings import FastEmbedEmbeddings
 
-        inner = FastEmbedEmbeddings(model_name=config.EMBEDDING_MODEL)
+        # Small batches and a 256-token limit keep peak memory low (the library defaults of 256 passages x 512
+        # tokens can exceed the free Streamlit Cloud memory limit). MiniLM itself only reads 256 tokens.
+        inner = FastEmbedEmbeddings(model_name=config.EMBEDDING_MODEL, max_length=256, batch_size=16, threads=2)
     return NormalizedEmbeddings(inner)
 
 
